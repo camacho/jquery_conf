@@ -1,5 +1,5 @@
 (function() {
-  var $document, $window, _ref, _ref1, _ref2, _ref3, _ref4,
+  var $document, $window, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -171,12 +171,63 @@
 
   })(App.Module);
 
+  App.States.Ives = (function(_super) {
+    __extends(Ives, _super);
+
+    function Ives() {
+      _ref2 = Ives.__super__.constructor.apply(this, arguments);
+      return _ref2;
+    }
+
+    Ives.prototype.type = 'state';
+
+    Ives.prototype.name = 'ives';
+
+    Ives.prototype.dependencies = ['nav', 'ivesify'];
+
+    Ives.prototype.onStart = function() {
+      this.vent.one("state:onBeforeStart", this.stop.bind(this));
+      return this.vent.trigger('component:map:search', [App.location, 'apple']);
+    };
+
+    return Ives;
+
+  })(App.Module);
+
+  App.Components.Ivesify = (function(_super) {
+    __extends(Ivesify, _super);
+
+    function Ivesify() {
+      _ref3 = Ivesify.__super__.constructor.apply(this, arguments);
+      return _ref3;
+    }
+
+    Ivesify.prototype.type = 'component';
+
+    Ivesify.prototype.name = 'ivesify';
+
+    Ivesify.prototype.onStart = function() {
+      return this.render();
+    };
+
+    Ivesify.prototype.render = function() {
+      return this.$el = $('<img src="ivesify.png" />').appendTo('body');
+    };
+
+    Ivesify.prototype.onStop = function() {
+      return this.$el.remove();
+    };
+
+    return Ivesify;
+
+  })(App.Module);
+
   App.States.Location = (function(_super) {
     __extends(Location, _super);
 
     function Location() {
-      _ref2 = Location.__super__.constructor.apply(this, arguments);
-      return _ref2;
+      _ref4 = Location.__super__.constructor.apply(this, arguments);
+      return _ref4;
     }
 
     Location.prototype.type = 'state';
@@ -233,8 +284,8 @@
     __extends(Map, _super);
 
     function Map() {
-      _ref3 = Map.__super__.constructor.apply(this, arguments);
-      return _ref3;
+      _ref5 = Map.__super__.constructor.apply(this, arguments);
+      return _ref5;
     }
 
     Map.prototype.type = 'component';
@@ -258,10 +309,10 @@
     };
 
     Map.prototype.getLocation = function(location) {
-      var _ref4,
+      var _ref6,
         _this = this;
-      if ((_ref4 = this.locationFetch) != null) {
-        _ref4.reject();
+      if ((_ref6 = this.locationFetch) != null) {
+        _ref6.reject();
       }
       this.locationFetch = $.Deferred();
       if (this.geocoder == null) {
@@ -314,12 +365,12 @@
     };
 
     Map.prototype.clearMarkers = function() {
-      var marker, _i, _len, _ref4, _results;
+      var marker, _i, _len, _ref6, _results;
       if (this.markers) {
-        _ref4 = this.markers;
+        _ref6 = this.markers;
         _results = [];
-        for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
-          marker = _ref4[_i];
+        for (_i = 0, _len = _ref6.length; _i < _len; _i++) {
+          marker = _ref6[_i];
           _results.push(marker.setMap(null));
         }
         return _results;
@@ -348,10 +399,10 @@
     };
 
     Map.prototype.tearDownMaps = function() {
-      var _ref4;
+      var _ref6;
       this.vent.off('component:map:search');
       this.map = this.service = this.infoWindow = this.markers = null;
-      return (_ref4 = this.locationFetch) != null ? _ref4.reject() : void 0;
+      return (_ref6 = this.locationFetch) != null ? _ref6.reject() : void 0;
     };
 
     return Map;
@@ -362,8 +413,8 @@
     __extends(Nav, _super);
 
     function Nav() {
-      _ref4 = Nav.__super__.constructor.apply(this, arguments);
-      return _ref4;
+      _ref6 = Nav.__super__.constructor.apply(this, arguments);
+      return _ref6;
     }
 
     Nav.prototype.type = 'component';
@@ -380,7 +431,7 @@
     Nav.prototype.render = function() {
       this.$el = $('<nav></nav>');
       this.$title = $("<a href=\"#location\" class=\"title\">" + App.location + "</a>").appendTo(this.$el);
-      this.$links = $('<a href="#bars">Bars</a><a href="#cafes">Cafes</a><a href="#location">Location</a>').appendTo(this.$el);
+      this.$links = $('<a href="#bars">Bars</a><a href="#cafes">Cafes</a><a href="#location">Location</a><a href="#ives">7</a>').appendTo(this.$el);
       return this.$el.prependTo('body');
     };
 

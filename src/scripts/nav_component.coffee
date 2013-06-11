@@ -18,7 +18,7 @@ class App.Components.Nav extends App.Module
     @$el = $ '<nav></nav>'
 
     @$title = $("<a href=\"#location\" class=\"title\">#{ App.location }</a>").appendTo @$el
-    @$links = $('<a href="#bars">Bars</a><a href="#cafes">Cafes</a><a href="#location">Location</a>').appendTo @$el
+    @$links = $('<a href="#bars">Bars</a><a href="#cafes">Cafes</a><a href="#location">Location</a><a href="#ives">7</a>').appendTo @$el
 
     @$el.prependTo 'body'
 
