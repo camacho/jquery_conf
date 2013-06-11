@@ -1,5 +1,5 @@
 (function() {
-  var $document, $window, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6,
+  var $document, $window, _ref, _ref1, _ref2, _ref3, _ref4,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -171,63 +171,12 @@
 
   })(App.Module);
 
-  App.States.Ive = (function(_super) {
-    __extends(Ive, _super);
-
-    function Ive() {
-      _ref2 = Ive.__super__.constructor.apply(this, arguments);
-      return _ref2;
-    }
-
-    Ive.prototype.type = 'state';
-
-    Ive.prototype.name = 'ive';
-
-    Ive.prototype.dependencies = ['nav', 'iveify'];
-
-    Ive.prototype.onStart = function() {
-      this.vent.one("state:onBeforeStart", this.stop.bind(this));
-      return this.vent.trigger('component:map:search', [App.location, 'apple']);
-    };
-
-    return Ive;
-
-  })(App.Module);
-
-  App.Components.Iveify = (function(_super) {
-    __extends(Iveify, _super);
-
-    function Iveify() {
-      _ref3 = Iveify.__super__.constructor.apply(this, arguments);
-      return _ref3;
-    }
-
-    Iveify.prototype.type = 'component';
-
-    Iveify.prototype.name = 'iveify';
-
-    Iveify.prototype.onStart = function() {
-      return this.render();
-    };
-
-    Iveify.prototype.render = function() {
-      return this.$el = $('<img src="iveify.png" />').appendTo('body');
-    };
-
-    Iveify.prototype.onStop = function() {
-      return this.$el.remove();
-    };
-
-    return Iveify;
-
-  })(App.Module);
-
   App.States.Location = (function(_super) {
     __extends(Location, _super);
 
     function Location() {
-      _ref4 = Location.__super__.constructor.apply(this, arguments);
-      return _ref4;
+      _ref2 = Location.__super__.constructor.apply(this, arguments);
+      return _ref2;
     }
 
     Location.prototype.type = 'state';
@@ -284,8 +233,8 @@
     __extends(Map, _super);
 
     function Map() {
-      _ref5 = Map.__super__.constructor.apply(this, arguments);
-      return _ref5;
+      _ref3 = Map.__super__.constructor.apply(this, arguments);
+      return _ref3;
     }
 
     Map.prototype.type = 'component';
@@ -309,10 +258,10 @@
     };
 
     Map.prototype.getLocation = function(location) {
-      var _ref6,
+      var _ref4,
         _this = this;
-      if ((_ref6 = this.locationFetch) != null) {
-        _ref6.reject();
+      if ((_ref4 = this.locationFetch) != null) {
+        _ref4.reject();
       }
       this.locationFetch = $.Deferred();
       if (this.geocoder == null) {
@@ -365,12 +314,12 @@
     };
 
     Map.prototype.clearMarkers = function() {
-      var marker, _i, _len, _ref6, _results;
+      var marker, _i, _len, _ref4, _results;
       if (this.markers) {
-        _ref6 = this.markers;
+        _ref4 = this.markers;
         _results = [];
-        for (_i = 0, _len = _ref6.length; _i < _len; _i++) {
-          marker = _ref6[_i];
+        for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
+          marker = _ref4[_i];
           _results.push(marker.setMap(null));
         }
         return _results;
@@ -399,10 +348,10 @@
     };
 
     Map.prototype.tearDownMaps = function() {
-      var _ref6;
+      var _ref4;
       this.vent.off('component:map:search');
       this.map = this.service = this.infoWindow = this.markers = null;
-      return (_ref6 = this.locationFetch) != null ? _ref6.reject() : void 0;
+      return (_ref4 = this.locationFetch) != null ? _ref4.reject() : void 0;
     };
 
     return Map;
@@ -413,8 +362,8 @@
     __extends(Nav, _super);
 
     function Nav() {
-      _ref6 = Nav.__super__.constructor.apply(this, arguments);
-      return _ref6;
+      _ref4 = Nav.__super__.constructor.apply(this, arguments);
+      return _ref4;
     }
 
     Nav.prototype.type = 'component';
@@ -423,6 +372,7 @@
 
     Nav.prototype.onStart = function(e, origin) {
       this.render();
+      this.$el.on('click', 'a.seven', this.iveify);
       this.updateNav.apply(this, arguments);
       this.vent.on('location:change.nav', this.updateTitle.bind(this));
       return this.vent.on('state:onStart.nav', this.updateNav.bind(this));
@@ -431,7 +381,7 @@
     Nav.prototype.render = function() {
       this.$el = $('<nav></nav>');
       this.$title = $("<a href=\"#location\" class=\"title\">" + App.location + "</a>").appendTo(this.$el);
-      this.$links = $('<a href="#bars">Bars</a><a href="#cafes">Cafes</a><a href="#location">Location</a><a href="#ive">7</a>').appendTo(this.$el);
+      this.$links = $('<a href="#bars">Bars</a><a href="#cafes">Cafes</a><a href="#location">Location</a><a href="#" class="seven">7</a>').appendTo(this.$el);
       return this.$el.prependTo('body');
     };
 
@@ -445,11 +395,30 @@
       return this.$title.text(App.location);
     };
 
+    Nav.prototype.iveify = function(e) {
+      var $map, deg;
+      $('body').find('a.seven').toggleClass('active');
+      $map = $('body').find('.map');
+      if (this._interval != null) {
+        clearInterval(this._interval);
+        delete this._interval;
+        $map.css('-webkit-filter', "none");
+      } else {
+        deg = 5;
+        this._interval = setInterval(function() {
+          deg = deg + 5;
+          return $map.css('-webkit-filter', "contrast(3) hue-rotate(" + deg + "deg)");
+        }, 50);
+      }
+      return e.preventDefault();
+    };
+
     Nav.prototype.onBeforeStop = function() {
       return this.vent.off('title:change.nav state:onStart.nav');
     };
 
     Nav.prototype.onStop = function() {
+      this.$el.off();
       return this.$el.remove();
     };
 
