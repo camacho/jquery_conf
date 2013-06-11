@@ -1,10 +1,10 @@
-class App.States.Ives extends App.Module
+class App.States.Ive extends App.Module
   type : 'state'
-  name : 'ives'
+  name : 'ive'
   dependencies :
     [
       'nav'
-      'ivesify'
+      'iveify'
     ]
 
   onStart : ->

@@ -171,54 +171,54 @@
 
   })(App.Module);
 
-  App.States.Ives = (function(_super) {
-    __extends(Ives, _super);
+  App.States.Ive = (function(_super) {
+    __extends(Ive, _super);
 
-    function Ives() {
-      _ref2 = Ives.__super__.constructor.apply(this, arguments);
+    function Ive() {
+      _ref2 = Ive.__super__.constructor.apply(this, arguments);
       return _ref2;
     }
 
-    Ives.prototype.type = 'state';
+    Ive.prototype.type = 'state';
 
-    Ives.prototype.name = 'ives';
+    Ive.prototype.name = 'ive';
 
-    Ives.prototype.dependencies = ['nav', 'ivesify'];
+    Ive.prototype.dependencies = ['nav', 'iveify'];
 
-    Ives.prototype.onStart = function() {
+    Ive.prototype.onStart = function() {
       this.vent.one("state:onBeforeStart", this.stop.bind(this));
       return this.vent.trigger('component:map:search', [App.location, 'apple']);
     };
 
-    return Ives;
+    return Ive;
 
   })(App.Module);
 
-  App.Components.Ivesify = (function(_super) {
-    __extends(Ivesify, _super);
+  App.Components.Iveify = (function(_super) {
+    __extends(Iveify, _super);
 
-    function Ivesify() {
-      _ref3 = Ivesify.__super__.constructor.apply(this, arguments);
+    function Iveify() {
+      _ref3 = Iveify.__super__.constructor.apply(this, arguments);
       return _ref3;
     }
 
-    Ivesify.prototype.type = 'component';
+    Iveify.prototype.type = 'component';
 
-    Ivesify.prototype.name = 'ivesify';
+    Iveify.prototype.name = 'iveify';
 
-    Ivesify.prototype.onStart = function() {
+    Iveify.prototype.onStart = function() {
       return this.render();
     };
 
-    Ivesify.prototype.render = function() {
-      return this.$el = $('<img src="ivesify.png" />').appendTo('body');
+    Iveify.prototype.render = function() {
+      return this.$el = $('<img src="iveify.png" />').appendTo('body');
     };
 
-    Ivesify.prototype.onStop = function() {
+    Iveify.prototype.onStop = function() {
       return this.$el.remove();
     };
 
-    return Ivesify;
+    return Iveify;
 
   })(App.Module);
 
@@ -431,7 +431,7 @@
     Nav.prototype.render = function() {
       this.$el = $('<nav></nav>');
       this.$title = $("<a href=\"#location\" class=\"title\">" + App.location + "</a>").appendTo(this.$el);
-      this.$links = $('<a href="#bars">Bars</a><a href="#cafes">Cafes</a><a href="#location">Location</a><a href="#ives">7</a>').appendTo(this.$el);
+      this.$links = $('<a href="#bars">Bars</a><a href="#cafes">Cafes</a><a href="#location">Location</a><a href="#ive">7</a>').appendTo(this.$el);
       return this.$el.prependTo('body');
     };
 
