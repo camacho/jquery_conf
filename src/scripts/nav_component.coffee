@@ -3,12 +3,18 @@ class App.Components.Nav extends App.Module
   name : 'nav'
 
   onStart : (e, origin) ->
+    # Render the navigation
     @render()
+
+    # Call update on the nav to make sure it is in the right state
     @updateNav.apply @, arguments
+
+    # Subscribe to any location changes to update the title and state changes to update the nav
     @vent.on 'location:change.nav', @updateTitle.bind @
     @vent.on 'state:onStart.nav', @updateNav.bind @
 
   render : ->
+    # Some simple rendering - can be replaced with a templating system for cleaner code
     @$el = $ '<nav></nav>'
 
     @$title = $("<a href=\"#location\" class=\"title\">#{ App.location }</a>").appendTo @$el
@@ -17,11 +23,17 @@ class App.Components.Nav extends App.Module
     @$el.prependTo 'body'
 
   updateNav : (e, state) ->
-    console.log arguments
+    # Update the nav to highlight the right links
     @$links.removeClass('active').filter( -> $(this).attr('href') is '#' + state.name).addClass 'active'
 
-  updateTitle : -> @$title.text App.location
+  updateTitle : ->
+    # Change the title to reflect location
+    @$title.text App.location
 
-  onBeforeStop : -> @vent.off 'title:change.nav hashchange.nav'
+  onBeforeStop : ->
+    # Unsubscribe to change events for title and start events for states
+    @vent.off 'title:change.nav state:onStart.nav'
 
-  onStop : -> @$el.remove()
+  onStop : ->
+    # Remove the element when stopping
+    @$el.remove()

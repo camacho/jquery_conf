@@ -249,7 +249,6 @@
     Map.prototype.render = function() {
       var mapOptions;
       this.$el = $('<div class="map"></div>').appendTo('body');
-      this.geocoder = new google.maps.Geocoder();
       mapOptions = {
         mapTypeId: google.maps.MapTypeId.ROADMAP,
         zoom: 14
@@ -259,18 +258,25 @@
     };
 
     Map.prototype.getLocation = function(location) {
-      var lookup;
-      lookup = $.Deferred();
+      var _ref4,
+        _this = this;
+      if ((_ref4 = this.locationFetch) != null) {
+        _ref4.reject();
+      }
+      this.locationFetch = $.Deferred();
+      if (this.geocoder == null) {
+        this.geocoder = new google.maps.Geocoder();
+      }
       this.geocoder.geocode({
         'address': location
       }, function(results, status) {
         if (status === google.maps.GeocoderStatus.OK) {
-          return lookup.resolve(results[0].geometry.location);
+          return _this.locationFetch.resolve(results[0].geometry.location);
         } else {
-          return lookup.reject(status);
+          return _this.locationFetch.reject(status);
         }
       });
-      return lookup;
+      return this.locationFetch;
     };
 
     Map.prototype.searchPlacesByLocation = function(e, location, types) {
@@ -283,15 +289,17 @@
     };
 
     Map.prototype.nearbySearch = function(types, latLng) {
-      var request, service,
+      var request,
         _this = this;
+      if (this.service == null) {
+        this.service = new google.maps.places.PlacesService(this.map);
+      }
       request = {
         location: latLng,
         radius: 1000,
         types: types instanceof Array ? types : [types]
       };
-      service = new google.maps.places.PlacesService(this.map);
-      return service.nearbySearch(request, function(results, status) {
+      return this.service.nearbySearch(request, function(results, status) {
         var bounds, place, _i, _len;
         if (status === google.maps.places.PlacesServiceStatus.OK) {
           bounds = new google.maps.LatLngBounds();
@@ -331,12 +339,19 @@
       });
     };
 
+    Map.prototype.onBeforeStop = function() {
+      return this.tearDownMaps();
+    };
+
     Map.prototype.onStop = function() {
-      this.$el.remove();
+      return this.$el.remove();
+    };
+
+    Map.prototype.tearDownMaps = function() {
+      var _ref4;
       this.vent.off('component:map:search');
-      this.$el = null;
-      this.map = null;
-      return this.geocoder = null;
+      this.map = this.service = this.infoWindow = this.markers = null;
+      return (_ref4 = this.locationFetch) != null ? _ref4.reject() : void 0;
     };
 
     return Map;
@@ -370,7 +385,6 @@
     };
 
     Nav.prototype.updateNav = function(e, state) {
-      console.log(arguments);
       return this.$links.removeClass('active').filter(function() {
         return $(this).attr('href') === '#' + state.name;
       }).addClass('active');
@@ -381,7 +395,7 @@
     };
 
     Nav.prototype.onBeforeStop = function() {
-      return this.vent.off('title:change.nav hashchange.nav');
+      return this.vent.off('title:change.nav state:onStart.nav');
     };
 
     Nav.prototype.onStop = function() {

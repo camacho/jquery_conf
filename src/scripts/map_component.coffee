@@ -3,14 +3,15 @@ class App.Components.Map extends App.Module
   name : 'map'
 
   onStart : ->
+    # Render the map
     @render()
+
+    # Begin listening to map search events
     @vent.on 'component:map:search', @searchPlacesByLocation.bind @
 
   render : ->
+    # Place the map canvas onto the body
     @$el = $('<div class="map"></div>').appendTo 'body'
-
-    # Share our geocoder
-    @geocoder = new google.maps.Geocoder()
 
     mapOptions =
       mapTypeId : google.maps.MapTypeId.ROADMAP
@@ -23,52 +24,84 @@ class App.Components.Map extends App.Module
     @map = new google.maps.Map @$el[0], mapOptions
 
   getLocation : (location) ->
-    lookup = $.Deferred()
+    # Abort anyone listening for the last location fetch (keeps down # of requests)
+    @locationFetch?.reject()
 
-    @geocoder.geocode 'address' : location, (results, status) ->
+    # Use a promise to have more flexibility with callbacks
+    @locationFetch = $.Deferred()
+
+    # Create a new geocoder if we haven't already
+    @geocoder ?= new google.maps.Geocoder()
+
+    # Make the request for geocode, updating the deferred with success or fail
+    @geocoder.geocode 'address' : location, (results, status) =>
       if status is google.maps.GeocoderStatus.OK
-        lookup.resolve results[0].geometry.location
+        @locationFetch.resolve results[0].geometry.location
       else
         # alert "Geocode was not successful for the following reason: #{ status }"
-        lookup.reject status
+        @locationFetch.reject status
 
-    lookup
+    @locationFetch
 
   searchPlacesByLocation : (e, location, types) ->
+
+
+    # Make sure that we have cleared all the markers
     @clearMarkers()
     @markers = []
+
+    # Get the location's lat and lng, than search nearby
     @getLocation(location).done (latLng) => @nearbySearch types, latLng
 
-
   nearbySearch : (types, latLng) ->
+    # Create a new places service if we don't have one already
+    @service ?= new google.maps.places.PlacesService @map
+
+    # Define the attributes of the search
     request =
       location : latLng
       radius : 1000
       types : if types instanceof Array then types else [types]
 
-    service = new google.maps.places.PlacesService @map
-
-    service.nearbySearch request, (results, status) =>
+    # Execute the search
+    @service.nearbySearch request, (results, status) =>
       if status is google.maps.places.PlacesServiceStatus.OK
+        # Keep track of the lat / lng bounds of the search results
         bounds = new google.maps.LatLngBounds()
 
+        # Place a marker for each result
         for place in results
           @renderMarker place
           bounds.extend place.geometry.location
 
+        # Make sure the map is at the right zoom and location to show results
         @map.fitBounds bounds
 
-  clearMarkers : -> marker.setMap null for marker in @markers if @markers
+  clearMarkers : ->
+    # Loop through the markers recorded and clear them off the map
+    marker.setMap null for marker in @markers if @markers
 
   renderMarker : (place) ->
+    # Record the new marker
     @markers.push marker = new google.maps.Marker map : @map, position : place.geometry.location
+
+    # Add click event to show the info window and change its content
     google.maps.event.addListener marker, 'click', =>
       @infoWindow.setContent "<strong>#{ place.name }</strong><br><em>#{ place.rating or '--' } / 5</em>"
       @infoWindow.open @map, marker
 
+  onBeforeStop : -> @tearDownMaps()
+
   onStop : ->
+    # Remove the element
     @$el.remove()
+
+  tearDownMaps : ->
+    # Stop listening for map search events
     @vent.off 'component:map:search'
-    @$el = null
-    @map = null
-    @geocoder = null
+
+    # Clean up any references to objects dependent on the map
+    @map =  @service = @infoWindow = @markers = null
+
+    # Abort any location fetches
+    @locationFetch?.reject()

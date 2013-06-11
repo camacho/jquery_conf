@@ -14,26 +14,35 @@ class App.States.Location extends App.Module
     @render()
 
   render : ->
+    # Build the form elements and keep references for events (replace with templates in the long run)
     @$el = $ '<div class="location"><h1> Set your location</h1></div>'
     @$input = $ '<input type="text" placeholder="Change location..." value="' + App.location + '" />'
     @$submit = $ '<button>Submit</button>'
 
+    # Bind for keypress, input, and click events on the form
     @$input.on 'keypress input', @updateValue.bind @
     @$submit.click @submitValue.bind @
 
+    # Add the form to the body and focus on the input
     @$el.append(@$input.add @$submit).appendTo 'body'
     @$input.focus()
 
   updateValue : (e) -> if e.keyCode is 13 then @submitValue()
 
   submitValue : ->
+    # Make sure the value is valid
     location = $.trim @$input.val()
     return if location is '' or App.location is location
+
+    # Update the value and send out a trigger (can be replaced with model layer)
     App.location = location
     @vent.trigger 'location:change'
 
   onBeforeStop : ->
+    # Stop listening to input and submit events
     @$input.off()
     @$submit.off()
 
-  onStop : -> @$el.remove()
+  onStop : ->
+    # Remove the element
+    @$el.remove()
