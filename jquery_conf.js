@@ -280,12 +280,45 @@
     };
 
     Map.prototype.searchPlacesByLocation = function(e, location, types) {
-      var _this = this;
+      var adjustedLocation,
+        _this = this;
       this.clearMarkers();
       this.markers = [];
-      return this.getLocation(location).done(function(latLng) {
+      adjustedLocation = location.toLowerCase().indexOf('cupertino') !== -1 ? 'Infinite Loop, Cupertino, CA' : location;
+      return this.getLocation(adjustedLocation).done(function(latLng) {
+        _this.updateFilter(location);
         return _this.nearbySearch(types, latLng);
       });
+    };
+
+    Map.prototype.updateFilter = function(location) {
+      if (location.toLowerCase().indexOf('cupertino') !== -1) {
+        return this.startFilter();
+      } else {
+        return this.stopFilter();
+      }
+    };
+
+    Map.prototype.startFilter = function() {
+      var $map, deg;
+      if (this._interval != null) {
+        stopFilter();
+      }
+      $map = this.$el;
+      deg = 5;
+      return this._interval = setInterval(function() {
+        deg = deg + 5;
+        return $map.css('-webkit-filter', "contrast(3) hue-rotate(" + deg + "deg)");
+      }, 50);
+    };
+
+    Map.prototype.stopFilter = function() {
+      if (this._interval == null) {
+        return;
+      }
+      clearInterval(this._interval);
+      delete this._interval;
+      return this.$el.css('-webkit-filter', "none");
     };
 
     Map.prototype.nearbySearch = function(types, latLng) {
@@ -399,6 +432,7 @@
     };
 
     Nav.prototype.onStop = function() {
+      this.$el.off();
       return this.$el.remove();
     };
 

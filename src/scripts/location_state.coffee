@@ -35,9 +35,12 @@ class App.States.Location extends App.Module
     return if location is '' or App.location is location
 
     # Update the value and send out a trigger (can be replaced with model layer)
+    # KR: If the App owns location, you could just fire the event here and have the App do the assignment
     App.location = location
     @vent.trigger 'location:change'
 
+  # KR: Might be simpler for the talk to just override #stop, do these both in the same method and call super.
+  # Although I suppose events and wrappers around them is a big point. :)
   onBeforeStop : ->
     # Stop listening to input and submit events
     @$input.off()

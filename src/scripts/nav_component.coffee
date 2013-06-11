@@ -32,8 +32,11 @@ class App.Components.Nav extends App.Module
 
   onBeforeStop : ->
     # Unsubscribe to change events for title and start events for states
+    # KR: I think this guy should be 'location:change.nav state:onStart.nav'
     @vent.off 'title:change.nav state:onStart.nav'
 
   onStop : ->
+    @$el.off()
+
     # Remove the element when stopping
     @$el.remove()
