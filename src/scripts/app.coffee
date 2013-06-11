@@ -40,7 +40,7 @@ window.App =
       App.Vent.trigger "state:#{ window.location.hash.slice 1 }:start"
 
   initialize : ->
-    # Create the single instances of our @Components and @States and register them with the vent
+    # Create the single instances of our @Components and @States which will register them with the vent
     @Components[component] = new @Components[component] @Vent for component of @Components
     @States[state] = new @States[state] @Vent for state of @States
 

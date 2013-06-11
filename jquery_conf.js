@@ -372,6 +372,7 @@
 
     Nav.prototype.onStart = function(e, origin) {
       this.render();
+      this.$el.on('click', 'a.seven', this.iveify);
       this.updateNav.apply(this, arguments);
       this.vent.on('location:change.nav', this.updateTitle.bind(this));
       return this.vent.on('state:onStart.nav', this.updateNav.bind(this));
@@ -380,7 +381,7 @@
     Nav.prototype.render = function() {
       this.$el = $('<nav></nav>');
       this.$title = $("<a href=\"#location\" class=\"title\">" + App.location + "</a>").appendTo(this.$el);
-      this.$links = $('<a href="#bars">Bars</a><a href="#cafes">Cafes</a><a href="#location">Location</a>').appendTo(this.$el);
+      this.$links = $('<a href="#bars">Bars</a><a href="#cafes">Cafes</a><a href="#location">Location</a><a href="#" class="seven">7</a>').appendTo(this.$el);
       return this.$el.prependTo('body');
     };
 
@@ -394,11 +395,30 @@
       return this.$title.text(App.location);
     };
 
+    Nav.prototype.iveify = function(e) {
+      var $map, deg;
+      $('body').find('a.seven').toggleClass('active');
+      $map = $('body').find('.map');
+      if (this._interval != null) {
+        clearInterval(this._interval);
+        delete this._interval;
+        $map.css('-webkit-filter', "none");
+      } else {
+        deg = 5;
+        this._interval = setInterval(function() {
+          deg = deg + 5;
+          return $map.css('-webkit-filter', "contrast(3) hue-rotate(" + deg + "deg)");
+        }, 50);
+      }
+      return e.preventDefault();
+    };
+
     Nav.prototype.onBeforeStop = function() {
       return this.vent.off('title:change.nav state:onStart.nav');
     };
 
     Nav.prototype.onStop = function() {
+      this.$el.off();
       return this.$el.remove();
     };
 
