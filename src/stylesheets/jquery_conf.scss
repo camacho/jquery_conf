@@ -20,19 +20,11 @@ body
 
 nav
 {
-  color: white;
-  font-size: 24px;
+  border-bottom: 2px solid lighten(black, 10%);
   @include text-shadow(1px 1px 0 black);
   @include background-image(
     linear-gradient(lighten(black, 15%), black)
   );
-
-  span
-  {
-    display: inline-block;
-    margin: 0 10px;
-    vertical-align: middle;
-  }
 
   a
   {
@@ -42,6 +34,7 @@ nav
     color: darken(white, 10%);
     text-decoration: none;
     @include transition(all 180ms ease-in);
+    vertical-align: middle;
 
     &:hover
     {
@@ -49,10 +42,18 @@ nav
     }
   }
 
+  .title
+  {
+    padding: 0;
+    margin: 0 10px;
+    font-size: 24px;
+    color: white;
+  }
+
   .active
   {
     color: white;
-    background: lighten(black, 20%);
+    background: lighten(black, 30%);
   }
 }
 

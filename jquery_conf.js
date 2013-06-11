@@ -364,8 +364,8 @@
 
     Nav.prototype.render = function() {
       this.$el = $('<nav></nav>');
-      this.$title = $("<span>" + App.location + "</span>").appendTo(this.$el);
-      this.$links = $('<a href="#bars">Bars</a> <a href="#cafes">Cafes</a><a href="#location">Location</a>').appendTo(this.$el);
+      this.$title = $("<a href=\"#location\" class=\"title\">" + App.location + "</a>").appendTo(this.$el);
+      this.$links = $('<a href="#bars">Bars</a><a href="#cafes">Cafes</a><a href="#location">Location</a>').appendTo(this.$el);
       return this.$el.prependTo('body');
     };
 

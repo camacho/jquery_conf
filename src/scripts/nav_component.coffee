@@ -11,8 +11,8 @@ class App.Components.Nav extends App.Module
   render : ->
     @$el = $ '<nav></nav>'
 
-    @$title = $("<span>#{ App.location }</span>").appendTo @$el
-    @$links = $('<a href="#bars">Bars</a> <a href="#cafes">Cafes</a><a href="#location">Location</a>').appendTo @$el
+    @$title = $("<a href=\"#location\" class=\"title\">#{ App.location }</a>").appendTo @$el
+    @$links = $('<a href="#bars">Bars</a><a href="#cafes">Cafes</a><a href="#location">Location</a>').appendTo @$el
 
     @$el.prependTo 'body'
 
