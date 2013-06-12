@@ -47,6 +47,8 @@ class App.Module
     @vent.trigger "component:#{ dependency }:start", @ for dependency in @dependencies
 
   stopDependencies : (event, caller) ->
+    callerDependencies = caller?.dependencies or []
+
     # Stop any dependencies unless the caller module needs them
-    for dependency in @dependencies when dependency not in caller.dependencies
+    for dependency in @dependencies when dependency not in callerDependencies
       @vent.trigger "component:#{ dependency }:stop", caller
