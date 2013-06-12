@@ -17,7 +17,7 @@
       for (state in this.States) {
         this.States[state] = new this.States[state](this.Vent);
       }
-      this.Vent.registerResponse('location', 'Portland');
+      this.Vent.respond('location', 'Portland');
       return this.Router.start();
     }
   };
@@ -115,7 +115,7 @@
 
     Bars.prototype.onStart = function() {
       this.vent.one("state:onBeforeStart", this.stop.bind(this));
-      return this.vent.trigger('component:map:search', [this.vent.requestResponse('location'), 'bar']);
+      return this.vent.trigger('component:map:search', [this.vent.request('location'), 'bar']);
     };
 
     return Bars;
@@ -138,7 +138,7 @@
 
     Cafes.prototype.onStart = function() {
       this.vent.one("state:onBeforeStart", this.stop.bind(this));
-      return this.vent.trigger('component:map:search', [this.vent.requestResponse('location'), 'cafe']);
+      return this.vent.trigger('component:map:search', [this.vent.request('location'), 'cafe']);
     };
 
     return Cafes;
@@ -167,7 +167,7 @@
     Location.prototype.render = function() {
       this.$el = $('<div class="location"><h1> Set your location</h1></div>');
       this.$input = $('<input type="text" placeholder="Change location..." />');
-      this.$input.val(this.vent.requestResponse('location'));
+      this.$input.val(this.vent.request('location'));
       this.$submit = $('<button>Submit</button>');
       this.$input.on('keypress input', this.updateValue.bind(this));
       this.$submit.click(this.submitValue.bind(this));
@@ -184,11 +184,11 @@
     Location.prototype.submitValue = function() {
       var location;
       location = $.trim(this.$input.val());
-      if (location === '' || this.vent.requestResponse('location') === location) {
+      if (location === '' || this.vent.request('location') === location) {
         return;
       }
       console.log('update');
-      return this.vent.registerResponse('location', location);
+      return this.vent.respond('location', location);
     };
 
     Location.prototype.onBeforeStop = function() {
@@ -354,7 +354,7 @@
 
     Nav.prototype.render = function() {
       this.$el = $('<nav></nav>');
-      this.$title = $("<a href=\"#location\" class=\"title\">" + (this.vent.requestResponse('location')) + "</a>").appendTo(this.$el);
+      this.$title = $("<a href=\"#location\" class=\"title\">" + (this.vent.request('location')) + "</a>").appendTo(this.$el);
       this.$links = $('<a href="#bars">Bars</a><a href="#cafes">Cafes</a><a href="#location">Location</a>').appendTo(this.$el);
       return this.$el.prependTo('body');
     };
@@ -423,11 +423,11 @@
 
     Vent.prototype.trigger = $document.trigger.bind($document);
 
-    Vent.prototype.requestResponse = function(name) {
+    Vent.prototype.request = function(name) {
       return this._responses[name];
     };
 
-    Vent.prototype.registerResponse = function(name, value) {
+    Vent.prototype.respond = function(name, value) {
       var oldValue;
       oldValue = this._responses[name];
       this._responses[name] = value;

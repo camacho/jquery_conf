@@ -8,9 +8,9 @@ class App.Vent
   off : $document.off.bind $document
   trigger : $document.trigger.bind $document
 
-  requestResponse : (name) -> @_responses[name]
+  request : (name) -> @_responses[name]
 
-  registerResponse : (name, value) ->
+  respond : (name, value) ->
     oldValue = @_responses[name]
     @_responses[name] = value
 
