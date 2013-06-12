@@ -17,7 +17,7 @@
       for (state in this.States) {
         this.States[state] = new this.States[state](this.Vent);
       }
-      this.Vent.respond('location', 'Portland');
+      this.Vent.set('location', 'Portland');
       return this.Router.start();
     }
   };
@@ -54,7 +54,7 @@
       return this.vent.trigger("" + this.type + ":onStart", this);
     };
 
-    Module.prototype.stop = function(event, nextState) {
+    Module.prototype.stop = function(event, caller) {
       var _ref, _ref1;
       if (!this._isActive) {
         return;
@@ -63,7 +63,7 @@
       if ((_ref = this.onBeforeStop) != null) {
         _ref.apply(this, arguments);
       }
-      this.stopDependencies(nextState);
+      this.stopDependencies.apply(this, arguments);
       this._isActive = false;
       if ((_ref1 = this.onStop) != null) {
         _ref1.apply(this, arguments);
@@ -82,14 +82,14 @@
       return _results;
     };
 
-    Module.prototype.stopDependencies = function(next) {
+    Module.prototype.stopDependencies = function(event, caller) {
       var dependency, _i, _len, _ref, _results;
       _ref = this.dependencies;
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         dependency = _ref[_i];
-        if (__indexOf.call(next.dependencies, dependency) < 0) {
-          _results.push(this.vent.trigger("component:" + dependency + ":stop", next));
+        if (__indexOf.call(caller.dependencies, dependency) < 0) {
+          _results.push(this.vent.trigger("component:" + dependency + ":stop", caller));
         }
       }
       return _results;
@@ -115,7 +115,11 @@
 
     Bars.prototype.onStart = function() {
       this.vent.one("state:onBeforeStart", this.stop.bind(this));
-      return this.vent.trigger('component:map:search', [this.vent.request('location'), 'bar']);
+      return this.vent.trigger('component:map:search', [this.vent.get('location'), 'bar']);
+    };
+
+    Bars.prototype.onBeforeStop = function() {
+      return this.vent.trigger('component:map:clear', this);
     };
 
     return Bars;
@@ -138,7 +142,11 @@
 
     Cafes.prototype.onStart = function() {
       this.vent.one("state:onBeforeStart", this.stop.bind(this));
-      return this.vent.trigger('component:map:search', [this.vent.request('location'), 'cafe']);
+      return this.vent.trigger('component:map:search', [this.vent.get('location'), 'cafe']);
+    };
+
+    Cafes.prototype.onBeforeStop = function() {
+      return this.vent.trigger('component:map:clear', this);
     };
 
     return Cafes;
@@ -167,7 +175,7 @@
     Location.prototype.render = function() {
       this.$el = $('<div class="location"><h1> Set your location</h1></div>');
       this.$input = $('<input type="text" placeholder="Change location..." />');
-      this.$input.val(this.vent.request('location'));
+      this.$input.val(this.vent.get('location'));
       this.$submit = $('<button>Submit</button>');
       this.$input.on('keypress input', this.updateValue.bind(this));
       this.$submit.click(this.submitValue.bind(this));
@@ -184,11 +192,10 @@
     Location.prototype.submitValue = function() {
       var location;
       location = $.trim(this.$input.val());
-      if (location === '' || this.vent.request('location') === location) {
+      if (location === '' || this.vent.get('location') === location) {
         return;
       }
-      console.log('update');
-      return this.vent.respond('location', location);
+      return this.vent.set('location', location);
     };
 
     Location.prototype.onBeforeStop = function() {
@@ -218,7 +225,8 @@
 
     Map.prototype.onStart = function() {
       this.render();
-      return this.vent.on('component:map:search', this.searchPlacesByLocation.bind(this));
+      this.vent.on('component:map:search', this.searchPlacesByLocation.bind(this));
+      return this.vent.on('component:map:clear', this.clearMarkers.bind(this));
     };
 
     Map.prototype.render = function() {
@@ -315,6 +323,7 @@
     };
 
     Map.prototype.onBeforeStop = function() {
+      this.vent.off('component:map:search component:map:clear');
       return this.tearDownMaps();
     };
 
@@ -324,7 +333,6 @@
 
     Map.prototype.tearDownMaps = function() {
       var _ref4;
-      this.vent.off('component:map:search');
       this.map = this.service = this.infoWindow = this.markers = null;
       return (_ref4 = this.locationFetch) != null ? _ref4.reject() : void 0;
     };
@@ -346,16 +354,16 @@
     Nav.prototype.name = 'nav';
 
     Nav.prototype.onStart = function(e, origin) {
-      this.render();
-      this.updateNav.apply(this, arguments);
+      this.render(origin);
       this.vent.on('location:change.nav', this.updateTitle.bind(this));
       return this.vent.on('state:onStart.nav', this.updateNav.bind(this));
     };
 
-    Nav.prototype.render = function() {
+    Nav.prototype.render = function(state) {
       this.$el = $('<nav></nav>');
-      this.$title = $("<a href=\"#location\" class=\"title\">" + (this.vent.request('location')) + "</a>").appendTo(this.$el);
+      this.$title = $("<a href=\"#location\" class=\"title\">" + (this.vent.get('location')) + "</a>").appendTo(this.$el);
       this.$links = $('<a href="#bars">Bars</a><a href="#cafes">Cafes</a><a href="#location">Location</a>').appendTo(this.$el);
+      this.updateNav(null, state);
       return this.$el.prependTo('body');
     };
 
@@ -423,11 +431,11 @@
 
     Vent.prototype.trigger = $document.trigger.bind($document);
 
-    Vent.prototype.request = function(name) {
+    Vent.prototype.get = function(name) {
       return this._responses[name];
     };
 
-    Vent.prototype.respond = function(name, value) {
+    Vent.prototype.set = function(name, value) {
       var oldValue;
       oldValue = this._responses[name];
       this._responses[name] = value;

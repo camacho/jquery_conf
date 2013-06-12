@@ -18,6 +18,13 @@ module.exports = (grunt) ->
             'src/scripts/*.coffee'
           ]
 
+      glob_to_multiple :
+        expand : true
+        flatten : true
+        src : ['src/**/*.coffee']
+        dest : 'lib/'
+        ext : '.js'
+
     compass :
       dist :
         options :

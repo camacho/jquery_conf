@@ -4,21 +4,20 @@ class App.Components.Nav extends App.Module
 
   onStart : (e, origin) ->
     # Render the navigation
-    @render()
-
-    # Call update on the nav to make sure it is in the right state
-    @updateNav.apply @, arguments
+    @render(origin)
 
     # Subscribe to any location changes to update the title and state changes to update the nav
     @vent.on 'location:change.nav', @updateTitle.bind @
     @vent.on 'state:onStart.nav', @updateNav.bind @
 
-  render : ->
+  render : (state) ->
     # Some simple rendering - can be replaced with a templating system for cleaner code
     @$el = $ '<nav></nav>'
 
-    @$title = $("<a href=\"#location\" class=\"title\">#{ @vent.request 'location' }</a>").appendTo @$el
+    @$title = $("<a href=\"#location\" class=\"title\">#{ @vent.get 'location' }</a>").appendTo @$el
     @$links = $('<a href="#bars">Bars</a><a href="#cafes">Cafes</a><a href="#location">Location</a>').appendTo @$el
+
+    @updateNav null, state
 
     @$el.prependTo 'body'
 

@@ -11,7 +11,7 @@ window.App =
     @States[state] = new @States[state] @Vent for state of @States
 
     # Register the default location as Portland
-    @Vent.respond 'location', 'Portland'
+    @Vent.set 'location', 'Portland'
 
     # Start our router
     @Router.start()

@@ -8,6 +8,7 @@ class App.Components.Map extends App.Module
 
     # Begin listening to map search events
     @vent.on 'component:map:search', @searchPlacesByLocation.bind @
+    @vent.on 'component:map:clear', @clearMarkers.bind @
 
   render : ->
     # Place the map canvas onto the body
@@ -44,8 +45,6 @@ class App.Components.Map extends App.Module
     @locationFetch
 
   searchPlacesByLocation : (e, location, types) ->
-
-
     # Make sure that we have cleared all the markers
     @clearMarkers()
     @markers = []
@@ -90,16 +89,17 @@ class App.Components.Map extends App.Module
       @infoWindow.setContent "<strong>#{ place.name }</strong><br><em>#{ place.rating or '--' } / 5</em>"
       @infoWindow.open @map, marker
 
-  onBeforeStop : -> @tearDownMaps()
+  onBeforeStop : ->
+    # Stop listening for map search events
+    @vent.off 'component:map:search component:map:clear'
+
+    @tearDownMaps()
 
   onStop : ->
     # Remove the element
     @$el.remove()
 
   tearDownMaps : ->
-    # Stop listening for map search events
-    @vent.off 'component:map:search'
-
     # Clean up any references to objects dependent on the map
     @map =  @service = @infoWindow = @markers = null
 

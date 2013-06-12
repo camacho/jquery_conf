@@ -12,4 +12,6 @@ class App.States.Bars extends App.Module
     @vent.one "state:onBeforeStart", @stop.bind @
 
     # Search for nearby bars
-    @vent.trigger 'component:map:search', [@vent.request('location'), 'bar']
+    @vent.trigger 'component:map:search', [@vent.get('location'), 'bar']
+
+  onBeforeStop : -> @vent.trigger 'component:map:clear', @

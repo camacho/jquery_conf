@@ -18,7 +18,7 @@ class App.States.Location extends App.Module
     @$el = $ '<div class="location"><h1> Set your location</h1></div>'
 
     @$input = $ '<input type="text" placeholder="Change location..." />'
-    @$input.val @vent.request 'location'
+    @$input.val @vent.get 'location'
 
     @$submit = $ '<button>Submit</button>'
 
@@ -35,12 +35,10 @@ class App.States.Location extends App.Module
   submitValue : ->
     # Make sure the value is valid
     location = $.trim @$input.val()
-    return if location is '' or @vent.request('location') is location
-
-    console.log 'update'
+    return if location is '' or @vent.get('location') is location
 
     # Update the value and send out a trigger
-    @vent.respond 'location', location
+    @vent.set 'location', location
 
   onBeforeStop : ->
     # Stop listening to input and submit events

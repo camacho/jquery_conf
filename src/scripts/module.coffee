@@ -26,7 +26,7 @@ class App.Module
     @onStart?.apply @, arguments
     @vent.trigger "#{ @type }:onStart", @
 
-  stop : (event, nextState) ->
+  stop : (event, caller) ->
     # We don't need to stop if it isn't active
     return unless @_isActive
 
@@ -35,7 +35,7 @@ class App.Module
     @onBeforeStop?.apply @, arguments
 
     # Make sure to stop any dependencies not shared
-    @stopDependencies nextState
+    @stopDependencies.apply @, arguments
     @_isActive = false
 
     # Run any after stop clean up code and publish that @type was stopped
@@ -46,7 +46,7 @@ class App.Module
     # Trigger start on any dependency components (this can be built out for other namespaces, too)
     @vent.trigger "component:#{ dependency }:start", @ for dependency in @dependencies
 
-  stopDependencies : (next) ->
-    # Stop any dependencies unless the next module needs them
-    for dependency in @dependencies when dependency not in next.dependencies
-      @vent.trigger "component:#{ dependency }:stop", next
+  stopDependencies : (event, caller) ->
+    # Stop any dependencies unless the caller module needs them
+    for dependency in @dependencies when dependency not in caller.dependencies
+      @vent.trigger "component:#{ dependency }:stop", caller
