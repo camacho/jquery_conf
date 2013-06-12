@@ -40,6 +40,8 @@ class App.States.Location extends App.Module
     # Update the value and send out a trigger
     @vent.set 'location', location
 
+  # KR: Might be simpler for the talk to just override #stop, do these both in the same method and call super.
+  # Although I suppose events and wrappers around them is a big point. :)
   onBeforeStop : ->
     # Stop listening to input and submit events
     @$input.off()

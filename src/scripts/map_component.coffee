@@ -49,8 +49,35 @@ class App.Components.Map extends App.Module
     @clearMarkers()
     @markers = []
 
+    # Easter egg only
+    adjustedLocation = if location.toLowerCase().indexOf('cupertino') isnt -1
+      'Infinite Loop, Cupertino, CA'
+    else
+      location
+
     # Get the location's lat and lng, than search nearby
-    @getLocation(location).done (latLng) => @nearbySearch types, latLng
+    @getLocation(adjustedLocation).done (latLng) =>
+      @updateFilter location
+      @nearbySearch types, latLng
+
+  updateFilter : (location) ->
+    if location.toLowerCase().indexOf('cupertino') isnt -1 then @startFilter() else @stopFilter()
+
+  startFilter : ->
+    stopFilter() if @_interval?
+    $map = @$el
+    deg = 5
+    @_interval = setInterval ->
+      deg = deg + 5
+      $map.css '-webkit-filter', "contrast(3) hue-rotate(#{deg}deg)"
+    , 50
+
+  stopFilter : ->
+    return unless @_interval?
+    clearInterval @_interval
+    delete @_interval
+    @$el.css '-webkit-filter', "none"
+
 
   nearbySearch : (types, latLng) ->
     # Create a new places service if we don't have one already
