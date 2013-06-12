@@ -1,49 +1,23 @@
 (function() {
-  var $document, $window, _ref, _ref1, _ref2, _ref3, _ref4,
+  var $document, _ref, _ref1, _ref2, _ref3, _ref4,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  $document = $(document);
-
-  $window = $(window);
-
   window.App = {
     States: {},
     Components: {},
-    location: 'Portland',
-    Vent: {
-      on: $document.on.bind($document),
-      one: $document.one.bind($document),
-      off: $document.off.bind($document),
-      trigger: $document.trigger.bind($document)
-    },
-    Router: {
-      initialState: 'bars',
-      start: function() {
-        var _this = this;
-        App.Vent.on('location:change', function() {
-          return window.location.hash = _this.initialState;
-        });
-        $window.on('hashchange', this._trigger.bind(this));
-        if (window.location.hash) {
-          return $window.trigger('hashchange');
-        } else {
-          return window.location.hash = this.initialState;
-        }
-      },
-      _trigger: function() {
-        return App.Vent.trigger("state:" + (window.location.hash.slice(1)) + ":start");
-      }
-    },
     initialize: function() {
       var component, state;
+      this.Vent = new this.Vent();
+      this.Router = new this.Router(this.Vent);
       for (component in this.Components) {
         this.Components[component] = new this.Components[component](this.Vent);
       }
       for (state in this.States) {
         this.States[state] = new this.States[state](this.Vent);
       }
+      this.Vent.registerResponse('location', 'Portland');
       return this.Router.start();
     }
   };
@@ -141,7 +115,7 @@
 
     Bars.prototype.onStart = function() {
       this.vent.one("state:onBeforeStart", this.stop.bind(this));
-      return this.vent.trigger('component:map:search', [App.location, 'bar']);
+      return this.vent.trigger('component:map:search', [this.vent.requestResponse('location'), 'bar']);
     };
 
     return Bars;
@@ -164,7 +138,7 @@
 
     Cafes.prototype.onStart = function() {
       this.vent.one("state:onBeforeStart", this.stop.bind(this));
-      return this.vent.trigger('component:map:search', [App.location, 'cafe']);
+      return this.vent.trigger('component:map:search', [this.vent.requestResponse('location'), 'cafe']);
     };
 
     return Cafes;
@@ -192,7 +166,8 @@
 
     Location.prototype.render = function() {
       this.$el = $('<div class="location"><h1> Set your location</h1></div>');
-      this.$input = $('<input type="text" placeholder="Change location..." value="' + App.location + '" />');
+      this.$input = $('<input type="text" placeholder="Change location..." />');
+      this.$input.val(this.vent.requestResponse('location'));
       this.$submit = $('<button>Submit</button>');
       this.$input.on('keypress input', this.updateValue.bind(this));
       this.$submit.click(this.submitValue.bind(this));
@@ -209,11 +184,11 @@
     Location.prototype.submitValue = function() {
       var location;
       location = $.trim(this.$input.val());
-      if (location === '' || App.location === location) {
+      if (location === '' || this.vent.requestResponse('location') === location) {
         return;
       }
-      App.location = location;
-      return this.vent.trigger('location:change');
+      console.log('update');
+      return this.vent.registerResponse('location', location);
     };
 
     Location.prototype.onBeforeStop = function() {
@@ -379,7 +354,7 @@
 
     Nav.prototype.render = function() {
       this.$el = $('<nav></nav>');
-      this.$title = $("<a href=\"#location\" class=\"title\">" + App.location + "</a>").appendTo(this.$el);
+      this.$title = $("<a href=\"#location\" class=\"title\">" + (this.vent.requestResponse('location')) + "</a>").appendTo(this.$el);
       this.$links = $('<a href="#bars">Bars</a><a href="#cafes">Cafes</a><a href="#location">Location</a>').appendTo(this.$el);
       return this.$el.prependTo('body');
     };
@@ -390,8 +365,8 @@
       }).addClass('active');
     };
 
-    Nav.prototype.updateTitle = function() {
-      return this.$title.text(App.location);
+    Nav.prototype.updateTitle = function(e, title) {
+      return this.$title.text(title);
     };
 
     Nav.prototype.onBeforeStop = function() {
@@ -405,5 +380,66 @@
     return Nav;
 
   })(App.Module);
+
+  App.Router = (function() {
+    Router.prototype.initialState = 'bars';
+
+    function Router(vent) {
+      this.vent = vent;
+      this.$window = $(window);
+    }
+
+    Router.prototype.start = function() {
+      var _this = this;
+      this.vent.on('location:change', function() {
+        return window.location.hash = _this.initialState;
+      });
+      this.$window.on('hashchange', this._trigger.bind(this));
+      if (window.location.hash) {
+        return this.$window.trigger('hashchange');
+      } else {
+        return window.location.hash = this.initialState;
+      }
+    };
+
+    Router.prototype._trigger = function() {
+      return this.vent.trigger("state:" + (window.location.hash.slice(1)) + ":start");
+    };
+
+    return Router;
+
+  })();
+
+  $document = $(document);
+
+  App.Vent = (function() {
+    function Vent() {}
+
+    Vent.prototype.on = $document.on.bind($document);
+
+    Vent.prototype.one = $document.one.bind($document);
+
+    Vent.prototype.off = $document.off.bind($document);
+
+    Vent.prototype.trigger = $document.trigger.bind($document);
+
+    Vent.prototype.requestResponse = function(name) {
+      return this._responses[name];
+    };
+
+    Vent.prototype.registerResponse = function(name, value) {
+      var oldValue;
+      oldValue = this._responses[name];
+      this._responses[name] = value;
+      if (oldValue !== value) {
+        return this.trigger("" + name + ":change", [value, oldValue]);
+      }
+    };
+
+    Vent.prototype._responses = {};
+
+    return Vent;
+
+  })();
 
 }).call(this);

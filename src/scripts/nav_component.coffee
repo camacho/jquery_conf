@@ -17,7 +17,7 @@ class App.Components.Nav extends App.Module
     # Some simple rendering - can be replaced with a templating system for cleaner code
     @$el = $ '<nav></nav>'
 
-    @$title = $("<a href=\"#location\" class=\"title\">#{ App.location }</a>").appendTo @$el
+    @$title = $("<a href=\"#location\" class=\"title\">#{ @vent.requestResponse 'location' }</a>").appendTo @$el
     @$links = $('<a href="#bars">Bars</a><a href="#cafes">Cafes</a><a href="#location">Location</a>').appendTo @$el
 
     @$el.prependTo 'body'
@@ -26,9 +26,9 @@ class App.Components.Nav extends App.Module
     # Update the nav to highlight the right links
     @$links.removeClass('active').filter( -> $(this).attr('href') is '#' + state.name).addClass 'active'
 
-  updateTitle : ->
+  updateTitle : (e, title) ->
     # Change the title to reflect location
-    @$title.text App.location
+    @$title.text title
 
   onBeforeStop : ->
     # Unsubscribe to change events for title and start events for states

@@ -12,4 +12,4 @@ class App.States.Cafes extends App.Module
     @vent.one "state:onBeforeStart", @stop.bind @
 
     # Search for cafes :)
-    @vent.trigger 'component:map:search', [App.location, 'cafe']
+    @vent.trigger 'component:map:search', [@vent.requestResponse('location'), 'cafe']

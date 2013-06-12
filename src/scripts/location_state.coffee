@@ -16,7 +16,10 @@ class App.States.Location extends App.Module
   render : ->
     # Build the form elements and keep references for events (replace with templates in the long run)
     @$el = $ '<div class="location"><h1> Set your location</h1></div>'
-    @$input = $ '<input type="text" placeholder="Change location..." value="' + App.location + '" />'
+
+    @$input = $ '<input type="text" placeholder="Change location..." />'
+    @$input.val @vent.requestResponse 'location'
+
     @$submit = $ '<button>Submit</button>'
 
     # Bind for keypress, input, and click events on the form
@@ -32,11 +35,12 @@ class App.States.Location extends App.Module
   submitValue : ->
     # Make sure the value is valid
     location = $.trim @$input.val()
-    return if location is '' or App.location is location
+    return if location is '' or @vent.requestResponse('location') is location
 
-    # Update the value and send out a trigger (can be replaced with model layer)
-    App.location = location
-    @vent.trigger 'location:change'
+    console.log 'update'
+
+    # Update the value and send out a trigger
+    @vent.registerResponse 'location', location
 
   onBeforeStop : ->
     # Stop listening to input and submit events
