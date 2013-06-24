@@ -8,6 +8,6 @@ Install
 
 Make sure you have SASS and Compass installed
 
-Run `npm install`
-Run `grunt compile`
-Open `index.html`
+* Run `npm install`
+* Run `grunt compile`
+* Open `index.html`
