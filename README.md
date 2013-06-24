@@ -11,8 +11,12 @@ Install
 * Run `npm install && grunt compile`
 * Open `index.html`
 
-**Note - This project uses [grunt-contrib-compass](https://github.com/gruntjs/grunt-contrib-compass)**
+**Note - This project uses [grunt.js](http://gruntjs.com/) and [grunt-contrib-compass](https://github.com/gruntjs/grunt-contrib-compass)**
 
+To run grunt, first install the `grunt-cli` globally:
+`npm install -g grunt-cli`
+
+To run `grunt-compass-config`:
 > This task requires you to have Ruby, Sass, and Compass >=0.12.2
 > installed. If you're on OS X or Linux you probably already have Ruby
 > installed; test with ruby -v in your terminal. When you've confirmed
