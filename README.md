@@ -9,7 +9,7 @@ Install
 * Run `npm install && grunt compile`
 * Open `index.html`
 
-** Note - This project uses [grunt-contrib-compass](https://github.com/gruntjs/grunt-contrib-compass) **
+**Note - This project uses [grunt-contrib-compass](https://github.com/gruntjs/grunt-contrib-compass)**
 
 > This task requires you to have Ruby, Sass, and Compass >=0.12.2
 > installed. If you're on OS X or Linux you probably already have Ruby
