@@ -1,5 +1,7 @@
-jQuery Conf Talk Example
+Beyond DOM Manipulations: Building Stateful Modules with Events and Promises
 ---
+
+Demo of ideas presented at jQuery Conf Portland 2013
 
 Slides at http://www.slideshare.net/crashlytics/jquery-conf
 
